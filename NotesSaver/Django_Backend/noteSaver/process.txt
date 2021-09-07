@@ -30,3 +30,45 @@ from . import views
 urlpatterns = [
     path('', views.index),
 ]
+
+*******************************Use of admin database and make Models**********************
+
+For making models write in terminal -------------------------------->
+python manage.py migrate
+
+Now make models in notes/models.py------------------------------------>
+from django.db import models
+
+class Notes(models.Model):
+    title = models.CharField(max_length = 200)
+    description = models.CharField(max_length = 200)
+    date = models.DateField(auto_now_add=True)
+
+Go to noteServer/settings.py to add a reference to its configuration class in the INSTALLED_APPS---->
+INSTALLED_APPS = [
+    'notes.apps.NotesConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+
+Run in terminal for make migrations-------------------------------------->
+python manage.py makemigrations notes
+python manage.py sqlmigrate notes 0001
+python manage.py migrate
+
+Now create an admin user and set username, email and password----------------------------------->
+python manage.py createsuperuser
+
+Register your Model in notes/admin.py----------------------------------->
+from django.contrib import admin
+from django.contrib import admin
+from .models import Notes
+
+admin.site.register(Notes)
+
+Visit http://127.0.0.1:8000/admin/ ------------------------------->
+
