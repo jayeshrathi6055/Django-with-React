@@ -1,0 +1,32 @@
+Django initilization ----------------------------------------------------->
+django-admin startproject noteSaver
+
+To run server-------------------------------------------->
+python manage.py runserver
+
+For making app---------------------------------------------------->
+django-admin startapp notes
+
+Write a "hello world" function in notes/views.py ------------------------------->
+from django.shortcuts import render
+from django.http import HttpResponse
+
+def index(request):
+    return HttpResponse("Hello world")
+
+Set path of notes in noteSaver/urls.py------------------------------------>
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('notes/', include('notes.urls')),
+]
+
+Make urls.py in notes and set path ----------------------------->
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index),
+]
