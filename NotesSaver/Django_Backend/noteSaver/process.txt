@@ -40,9 +40,13 @@ Now make models in notes/models.py------------------------------------>
 from django.db import models
 
 class Notes(models.Model):
+    id = models.AutoField
     title = models.CharField(max_length = 200)
     description = models.CharField(max_length = 200)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
+
+    def __str__(self):
+        return self.title
 
 Go to noteServer/settings.py to add a reference to its configuration class in the INSTALLED_APPS---->
 INSTALLED_APPS = [
@@ -81,14 +85,19 @@ urlpatterns = [
     path('showAll/', views.show),
 ]
 
-Now write function in notes/views.py------------------------------>
+Now write function in notes/views.py----------------------------------------------->
+from django.http import HttpResponse,JsonResponse
+from django.utils import timezone
+from .models import Notes
+import json
+
 # Create
 def save(request):
     body = request.body.decode('utf-8')
     body = json.loads(body)
-    new = Notes(title = body['title'], description = body['description'])
+    new = Notes(title = body['title'], description = body['description'],date = timezone.now())
     new.save()
-    obj = {"title":new.title,"description":new.description}
+    obj = {"title":new.title,"description":new.description,"date":new.date,"id":new.id}
     return JsonResponse(obj)
 
 # Read
@@ -96,8 +105,22 @@ def show(request):
     arr_of_obj = []
     arr = Notes.objects.all()
     for i in arr:
-        o = {"title":i.title,"description":i.description}
+        o = {"title":i.title,"description":i.description,"date":i.date,"id":i.id}
         arr_of_obj.append(o)
 
     return JsonResponse(arr_of_obj,safe=False)
+
+# Update By Id
+def update(request):
+    body = request.body.decode('utf-8')
+    body = json.loads(body)
+    Notes.objects.filter(id = body['id']).update(title = body['title'], description = body['description'])
+    return JsonResponse({"success":True},safe=False)
+
+# Delete By Id
+def delete(request):
+    body = request.body.decode('utf-8')
+    body = json.loads(body)
+    Notes.objects.filter(id = body['id']).delete()
+    return JsonResponse({"success":True},safe=False)
 
