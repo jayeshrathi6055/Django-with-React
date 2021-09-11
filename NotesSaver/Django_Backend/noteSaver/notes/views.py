@@ -2,6 +2,7 @@ from django.http import HttpResponse,JsonResponse
 from django.utils import timezone
 from .models import Notes
 import json
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -9,13 +10,15 @@ def index(request):
     return HttpResponse("Hello world") 
 
 # Create
+@csrf_exempt   # It is used to disable csrf
 def save(request):
-    body = request.body.decode('utf-8')
-    body = json.loads(body)
-    new = Notes(title = body['title'], description = body['description'],date = timezone.now())
-    new.save()
-    obj = {"title":new.title,"description":new.description,"date":new.date,"id":new.id}
-    return JsonResponse(obj)
+    if request.method == "POST":
+        body = request.body.decode('utf-8')
+        body = json.loads(body)
+        new = Notes(title = body['title'], description = body['description'],date = timezone.now())
+        new.save()
+        obj = {"title":new.title,"description":new.description,"date":new.date,"id":new.id}
+        return JsonResponse(obj)
 
 # Read
 def show(request):
@@ -28,6 +31,7 @@ def show(request):
     return JsonResponse(arr_of_obj,safe=False)
 
 # Update By Id
+@csrf_exempt
 def update(request):
     body = request.body.decode('utf-8')
     body = json.loads(body)
@@ -35,6 +39,7 @@ def update(request):
     return JsonResponse({"success":True},safe=False)
 
 # Delete By Id
+@csrf_exempt
 def delete(request):
     body = request.body.decode('utf-8')
     body = json.loads(body)
